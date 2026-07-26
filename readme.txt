@@ -18,14 +18,10 @@ and a dedicated merchant API token.
 Version 0.1 includes:
 
 * Connection and approved-template checks.
-* Revocable, site-bound WebPlatform license activation.
 * Manual free-form test messages for open customer-service windows.
 * WooCommerce checkout opt-in.
 * Template notifications for processing, completed, and cancelled orders.
 * Order notes for delivery submission success or failure.
-
-The plugin is free to install. API entitlement, usage limits, and future paid plans are
-controlled by the merchant's WebPlatform account.
 
 == Installation ==
 
@@ -41,8 +37,7 @@ explicitly opt in; the plugin adds an unchecked checkout consent field.
 == Changelog ==
 
 = 0.2.0 =
-* Added a multi-plugin license catalog and product selector.
-* Added support for separate WebPlatform Messaging and wc-sodexo activations.
+* Improved connection settings and WooCommerce notification controls.
 
 = 0.1.0 =
 * Initial MVP.
