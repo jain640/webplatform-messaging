@@ -18,6 +18,7 @@ class WPWA_Admin
         add_action('admin_post_wpwa_activate_license', array($this, 'activate_license'));
         add_action('admin_post_wpwa_validate_license', array($this, 'validate_license'));
         add_action('admin_post_wpwa_deactivate_license', array($this, 'deactivate_license'));
+        add_action('admin_post_wpwa_sync_wordpress', array($this, 'sync_wordpress'));
     }
 
     public function menu()
@@ -78,11 +79,33 @@ class WPWA_Admin
             : (array) ($catalog_result['data']['products'] ?? array());
         $selected_product = $settings['license_product_key'];
         $selected_license = $this->selected_license($settings, $selected_product);
+        $sync_status = $this->client->is_configured() ? $this->client->connector_status() : null;
+        $sync_data = !is_wp_error($sync_status) ? (array) ($sync_status['data'] ?? array()) : array();
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('WebPlatform Messaging', 'webplatform-messaging'); ?></h1>
             <?php settings_errors('wpwa'); ?>
             <p><?php esc_html_e('Connect WordPress to your WebPlatform merchant account. Your Meta access token is never stored in WordPress.', 'webplatform-messaging'); ?></p>
+
+            <h2><?php esc_html_e('Audience synchronization', 'webplatform-messaging'); ?></h2>
+            <p>
+                <?php
+                printf(
+                    /* translators: 1: synchronized contacts, 2: synchronized orders. */
+                    esc_html__('%1$d contacts and %2$d orders synchronized.', 'webplatform-messaging'),
+                    absint($sync_data['contacts'] ?? 0),
+                    absint($sync_data['orders'] ?? 0)
+                );
+                ?>
+            </p>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline-block;margin-right:8px">
+                <input type="hidden" name="action" value="wpwa_sync_wordpress">
+                <?php wp_nonce_field('wpwa_sync_wordpress'); ?>
+                <?php submit_button(__('Sync WordPress data', 'webplatform-messaging'), 'primary', 'submit', false); ?>
+            </form>
+            <?php if (!empty($sync_data['dashboards']['messaging'])) : ?>
+                <a class="button button-secondary" href="<?php echo esc_url($sync_data['dashboards']['messaging']); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Open Messaging Campaigns', 'webplatform-messaging'); ?></a>
+            <?php endif; ?>
 
             <h2><?php esc_html_e('License', 'webplatform-messaging'); ?></h2>
             <p>
@@ -208,6 +231,19 @@ class WPWA_Admin
         $result = $this->client->send_text($phone, $message);
         $this->redirect_notice(
             is_wp_error($result) ? $result->get_error_message() : __('Test message was accepted by WebPlatform.', 'webplatform-messaging'),
+            !is_wp_error($result)
+        );
+    }
+
+    public function sync_wordpress()
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You are not allowed to perform this action.', 'webplatform-messaging'));
+        }
+        check_admin_referer('wpwa_sync_wordpress');
+        $result = $this->client->sync_wordpress(WPWA_Sync::payload());
+        $this->redirect_notice(
+            is_wp_error($result) ? $result->get_error_message() : __('WordPress contacts and orders synchronized.', 'webplatform-messaging'),
             !is_wp_error($result)
         );
     }

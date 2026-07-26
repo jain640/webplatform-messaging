@@ -2,10 +2,15 @@
 
 Installable connector for the WebPlatform merchant WhatsApp API.
 
-## Installation
+## Build the ZIP
 
-Download `webplatform-messaging-0.2.0.zip`, upload it from WordPress under
-Plugins > Add New > Upload Plugin, and activate it.
+From the repository root:
+
+```sh
+./integrations/wordpress/build-webplatform-messaging.sh
+```
+
+The ZIP is written to `artifacts/webplatform-messaging.zip`.
 
 ## Commercial model
 

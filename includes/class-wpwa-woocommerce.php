@@ -37,6 +37,9 @@ class WPWA_WooCommerce
         }
 
         update_post_meta($order_id, '_wpwa_whatsapp_opt_in', !empty($_POST['wpwa_whatsapp_opt_in']) ? 'yes' : 'no');
+        if (!empty($_POST['wpwa_whatsapp_opt_in']) && get_current_user_id()) {
+            update_user_meta(get_current_user_id(), 'wpwa_whatsapp_opt_in', 1);
+        }
     }
 
     public function status_changed($order_id, $old_status, $new_status, $order)

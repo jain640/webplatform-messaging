@@ -51,6 +51,16 @@ class WPWA_API_Client
         ));
     }
 
+    public function connector_status()
+    {
+        return $this->request('GET', '/api/merchant/wordpress/status');
+    }
+
+    public function sync_wordpress($payload)
+    {
+        return $this->request('POST', '/api/merchant/wordpress/sync', $payload);
+    }
+
     public function license_products()
     {
         return $this->request('GET', '/api/plugin-license/products');
