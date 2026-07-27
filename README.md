@@ -2,6 +2,13 @@
 
 Installable connector for the WebPlatform merchant WhatsApp API.
 
+## Product links
+
+* [Explore WebPlatform plugins](https://webplatform.co.in/plugins)
+* [WebPlatform plugin setup guides](https://webplatform.co.in/help/plugins)
+* [Compare WhatsApp and email marketing plans](https://webplatform.co.in/pricing)
+* [Open WebPlatform](https://webplatform.co.in/)
+
 ## Build the ZIP
 
 From the repository root:
