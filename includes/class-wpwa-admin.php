@@ -15,9 +15,6 @@ class WPWA_Admin
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_post_wpwa_test_connection', array($this, 'test_connection'));
         add_action('admin_post_wpwa_send_test', array($this, 'send_test'));
-        add_action('admin_post_wpwa_activate_license', array($this, 'activate_license'));
-        add_action('admin_post_wpwa_validate_license', array($this, 'validate_license'));
-        add_action('admin_post_wpwa_deactivate_license', array($this, 'deactivate_license'));
         add_action('admin_post_wpwa_sync_wordpress', array($this, 'sync_wordpress'));
     }
 
@@ -55,11 +52,6 @@ class WPWA_Admin
             'template_completed' => isset($input['template_completed']) ? sanitize_key($input['template_completed']) : '',
             'template_cancelled' => isset($input['template_cancelled']) ? sanitize_key($input['template_cancelled']) : '',
             'template_language' => isset($input['template_language']) ? sanitize_text_field($input['template_language']) : 'en',
-            'license_instance_id' => $old['license_instance_id'],
-            'license_activation_token' => $old['license_activation_token'],
-            'license_status' => $old['license_status'],
-            'license_product_key' => $old['license_product_key'],
-            'licenses' => $old['licenses'],
         );
     }
 
@@ -70,15 +62,6 @@ class WPWA_Admin
         }
 
         $settings = $this->client->settings();
-        $catalog_result = $this->client->license_products();
-        $products = is_wp_error($catalog_result)
-            ? array(
-                array('product_key' => 'webplatform-messaging', 'name' => 'WebPlatform Messaging Connector', 'entitled' => true),
-                array('product_key' => 'wc-sodexo', 'name' => 'Sodexo Payment Gateway for WooCommerce', 'entitled' => false),
-            )
-            : (array) ($catalog_result['data']['products'] ?? array());
-        $selected_product = $settings['license_product_key'];
-        $selected_license = $this->selected_license($settings, $selected_product);
         $sync_status = $this->client->is_configured() ? $this->client->connector_status() : null;
         $sync_data = !is_wp_error($sync_status) ? (array) ($sync_status['data'] ?? array()) : array();
         ?>
@@ -105,41 +88,6 @@ class WPWA_Admin
             </form>
             <?php if (!empty($sync_data['dashboards']['messaging'])) : ?>
                 <a class="button button-secondary" href="<?php echo esc_url($sync_data['dashboards']['messaging']); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Open Messaging Campaigns', 'webplatform-messaging-connector'); ?></a>
-            <?php endif; ?>
-
-            <h2><?php esc_html_e('License', 'webplatform-messaging-connector'); ?></h2>
-            <p>
-                <?php esc_html_e('Status:', 'webplatform-messaging-connector'); ?>
-                <strong><?php echo esc_html(ucfirst($selected_license['status'])); ?></strong>
-            </p>
-            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline-block;margin-right:8px">
-                <input type="hidden" name="action" value="wpwa_activate_license">
-                <?php wp_nonce_field('wpwa_activate_license'); ?>
-                <label for="wpwa-license-product" class="screen-reader-text"><?php esc_html_e('Plugin', 'webplatform-messaging-connector'); ?></label>
-                <select id="wpwa-license-product" name="product_key">
-                    <?php foreach ($products as $product) : ?>
-                        <option value="<?php echo esc_attr($product['product_key']); ?>" <?php selected($selected_product, $product['product_key']); ?>>
-                            <?php
-                            echo esc_html(
-                                $product['name'] . (empty($product['entitled']) ? ' — entitlement required' : '')
-                            );
-                            ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <?php submit_button(__('Activate license', 'webplatform-messaging-connector'), 'primary', 'submit', false); ?>
-            </form>
-            <?php if (!empty($selected_license['activation_token'])) : ?>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline-block;margin-right:8px">
-                    <input type="hidden" name="action" value="wpwa_validate_license">
-                    <?php wp_nonce_field('wpwa_validate_license'); ?>
-                    <?php submit_button(__('Check license', 'webplatform-messaging-connector'), 'secondary', 'submit', false); ?>
-                </form>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline-block">
-                    <input type="hidden" name="action" value="wpwa_deactivate_license">
-                    <?php wp_nonce_field('wpwa_deactivate_license'); ?>
-                    <?php submit_button(__('Deactivate license', 'webplatform-messaging-connector'), 'secondary', 'submit', false); ?>
-                </form>
             <?php endif; ?>
 
             <form method="post" action="options.php">
@@ -246,122 +194,6 @@ class WPWA_Admin
             is_wp_error($result) ? $result->get_error_message() : __('WordPress contacts and orders synchronized.', 'webplatform-messaging-connector'),
             !is_wp_error($result)
         );
-    }
-
-    public function activate_license()
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You are not allowed to perform this action.', 'webplatform-messaging-connector'));
-        }
-        check_admin_referer('wpwa_activate_license');
-
-        $settings = $this->client->settings();
-        $product_key = isset($_POST['product_key'])
-            ? sanitize_key(wp_unslash($_POST['product_key']))
-            : 'webplatform-messaging';
-        $license = $this->selected_license($settings, $product_key);
-        $instance_id = !empty($license['instance_id'])
-            ? $license['instance_id']
-            : wp_generate_uuid4();
-        $result = $this->client->activate_license($product_key, $instance_id);
-
-        if (!is_wp_error($result)) {
-            $settings['license_product_key'] = $product_key;
-            $settings['licenses'][$product_key] = array(
-                'instance_id' => $instance_id,
-                'activation_token' => sanitize_text_field($result['data']['activation_token'] ?? ''),
-                'status' => sanitize_key($result['data']['status'] ?? 'active'),
-            );
-            $settings['license_instance_id'] = $instance_id;
-            $settings['license_activation_token'] = sanitize_text_field($result['data']['activation_token'] ?? '');
-            $settings['license_status'] = sanitize_key($result['data']['status'] ?? 'active');
-            update_option(WPWA_API_Client::OPTION_KEY, $settings, false);
-        }
-
-        $this->redirect_notice(
-            is_wp_error($result) ? $result->get_error_message() : __('Plugin license activated.', 'webplatform-messaging-connector'),
-            !is_wp_error($result)
-        );
-    }
-
-    public function validate_license()
-    {
-        $this->authorize_action('wpwa_validate_license');
-        $settings = $this->client->settings();
-        $product_key = $settings['license_product_key'];
-        $license = $this->selected_license($settings, $product_key);
-        $result = $this->client->validate_license(
-            $product_key,
-            $license['instance_id'],
-            $license['activation_token']
-        );
-
-        $status = is_wp_error($result)
-            ? 'inactive'
-            : sanitize_key($result['data']['status'] ?? 'active');
-        $settings['license_status'] = $status;
-        $settings['licenses'][$product_key]['status'] = $status;
-        update_option(WPWA_API_Client::OPTION_KEY, $settings, false);
-
-        $this->redirect_notice(
-            is_wp_error($result) ? $result->get_error_message() : __('Plugin license is valid.', 'webplatform-messaging-connector'),
-            !is_wp_error($result)
-        );
-    }
-
-    public function deactivate_license()
-    {
-        $this->authorize_action('wpwa_deactivate_license');
-        $settings = $this->client->settings();
-        $product_key = $settings['license_product_key'];
-        $license = $this->selected_license($settings, $product_key);
-        $result = $this->client->deactivate_license(
-            $product_key,
-            $license['instance_id'],
-            $license['activation_token']
-        );
-
-        if (!is_wp_error($result)) {
-            $settings['licenses'][$product_key]['activation_token'] = '';
-            $settings['licenses'][$product_key]['status'] = 'deactivated';
-            $settings['license_activation_token'] = '';
-            $settings['license_status'] = 'deactivated';
-            update_option(WPWA_API_Client::OPTION_KEY, $settings, false);
-        }
-
-        $this->redirect_notice(
-            is_wp_error($result) ? $result->get_error_message() : __('Plugin license deactivated.', 'webplatform-messaging-connector'),
-            !is_wp_error($result)
-        );
-    }
-
-    private function selected_license($settings, $product_key)
-    {
-        if (!empty($settings['licenses'][$product_key]) && is_array($settings['licenses'][$product_key])) {
-            return wp_parse_args($settings['licenses'][$product_key], array(
-                'instance_id' => '',
-                'activation_token' => '',
-                'status' => 'inactive',
-            ));
-        }
-
-        if ($product_key === 'webplatform-messaging') {
-            return array(
-                'instance_id' => $settings['license_instance_id'],
-                'activation_token' => $settings['license_activation_token'],
-                'status' => $settings['license_status'],
-            );
-        }
-
-        return array('instance_id' => '', 'activation_token' => '', 'status' => 'inactive');
-    }
-
-    private function authorize_action($action)
-    {
-        if (!current_user_can('manage_options')) {
-            wp_die(esc_html__('You are not allowed to perform this action.', 'webplatform-messaging-connector'));
-        }
-        check_admin_referer($action);
     }
 
     private function redirect_notice($message, $success)

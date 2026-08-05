@@ -14,11 +14,6 @@ class WPWA_API_Client
             'base_url' => 'https://webplatform.co.in',
             'access_token' => '',
             'timeout' => 15,
-            'license_instance_id' => '',
-            'license_activation_token' => '',
-            'license_status' => 'inactive',
-            'license_product_key' => 'webplatform-messaging',
-            'licenses' => array(),
         ));
     }
 
@@ -59,40 +54,6 @@ class WPWA_API_Client
     public function sync_wordpress($payload)
     {
         return $this->request('POST', '/api/merchant/wordpress/sync', $payload);
-    }
-
-    public function license_products()
-    {
-        return $this->request('GET', '/api/plugin-license/products');
-    }
-
-    public function activate_license($product_key, $instance_id)
-    {
-        return $this->request('POST', '/api/plugin-license/activate', array(
-            'product_key' => $product_key,
-            'site_url' => home_url('/'),
-            'instance_id' => $instance_id,
-        ));
-    }
-
-    public function validate_license($product_key, $instance_id, $activation_token)
-    {
-        return $this->request('POST', '/api/plugin-license/validate', array(
-            'product_key' => $product_key,
-            'site_url' => home_url('/'),
-            'instance_id' => $instance_id,
-            'activation_token' => $activation_token,
-        ));
-    }
-
-    public function deactivate_license($product_key, $instance_id, $activation_token)
-    {
-        return $this->request('POST', '/api/plugin-license/deactivate', array(
-            'product_key' => $product_key,
-            'site_url' => home_url('/'),
-            'instance_id' => $instance_id,
-            'activation_token' => $activation_token,
-        ));
     }
 
     private function request($method, $path, $body = null)

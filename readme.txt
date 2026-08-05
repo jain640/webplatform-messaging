@@ -1,10 +1,10 @@
 === WebPlatform Messaging Connector ===
-Contributors: webplatform
+Contributors: jain640
 Tags: whatsapp, woocommerce, notifications
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.0
+Stable tag: 0.3.1
 License: GPLv2 or later
 
 Send WordPress and WooCommerce WhatsApp notifications through your WebPlatform merchant account.
@@ -15,7 +15,17 @@ WebPlatform WhatsApp connects WordPress to WebPlatform's merchant WhatsApp API.
 Meta credentials remain in WebPlatform. WordPress stores only the WebPlatform base URL
 and a dedicated merchant API token.
 
-Version 0.1 includes:
+The plugin relies on WebPlatform, an external service, to submit WhatsApp messages,
+retrieve approved templates, and synchronize contacts and WooCommerce order data.
+Using these features sends the configured site URL, contact details, consent status,
+order details, message content, and template selections to WebPlatform. A WebPlatform
+merchant account and API token are required.
+
+* Service: https://webplatform.co.in/
+* Terms of Service: https://webplatform.co.in/terms
+* Privacy Policy: https://webplatform.co.in/privacy-policy
+
+The plugin includes:
 
 * Connection and approved-template checks.
 * Manual free-form test messages for open customer-service windows.
@@ -37,6 +47,11 @@ Automated WhatsApp messages normally require approved Meta templates. Customers 
 explicitly opt in; the plugin adds an unchecked checkout consent field.
 
 == Changelog ==
+
+= 0.3.1 =
+* Removed the license and entitlement interface; all included functionality is available without a plugin license check.
+* Removed the 100-record synchronization cap.
+* Documented the external WebPlatform service and corrected the contributor account.
 
 = 0.3.0 =
 * Added audience and order synchronization.
