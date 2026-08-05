@@ -21,7 +21,7 @@ class WPWA_WooCommerce
         woocommerce_form_field('wpwa_whatsapp_opt_in', array(
             'type' => 'checkbox',
             'class' => array('form-row-wide'),
-            'label' => __('Send me order updates on WhatsApp', 'webplatform-messaging'),
+            'label' => __('Send me order updates on WhatsApp', 'webplatform-messaging-connector'),
             'required' => false,
         ), $checkout->get_value('wpwa_whatsapp_opt_in'));
     }
@@ -59,7 +59,7 @@ class WPWA_WooCommerce
         if (is_wp_error($result)) {
             $order->add_order_note(sprintf(
                 /* translators: %s: Error returned by the WebPlatform messaging API. */
-                __('WebPlatform WhatsApp notification failed: %s', 'webplatform-messaging'),
+                __('WebPlatform WhatsApp notification failed: %s', 'webplatform-messaging-connector'),
                 $result->get_error_message()
             ));
             return;
@@ -67,7 +67,7 @@ class WPWA_WooCommerce
 
         $order->add_order_note(sprintf(
             /* translators: %s: Approved messaging template name. */
-            __('WebPlatform WhatsApp template “%s” sent.', 'webplatform-messaging'),
+            __('WebPlatform WhatsApp template “%s” sent.', 'webplatform-messaging-connector'),
             $template
         ));
     }

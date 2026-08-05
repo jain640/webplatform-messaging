@@ -99,7 +99,7 @@ class WPWA_API_Client
     {
         $settings = $this->settings();
         if (!$this->is_configured()) {
-            return new WP_Error('wpwa_not_configured', __('WebPlatform WhatsApp is not configured.', 'webplatform-messaging'));
+            return new WP_Error('wpwa_not_configured', __('WebPlatform WhatsApp is not configured.', 'webplatform-messaging-connector'));
         }
 
         $args = array(
@@ -129,7 +129,7 @@ class WPWA_API_Client
         $status = wp_remote_retrieve_response_code($response);
         $decoded = json_decode(wp_remote_retrieve_body($response), true);
         if (!is_array($decoded)) {
-            return new WP_Error('wpwa_invalid_response', __('WebPlatform returned an invalid response.', 'webplatform-messaging'));
+            return new WP_Error('wpwa_invalid_response', __('WebPlatform returned an invalid response.', 'webplatform-messaging-connector'));
         }
 
         if ($status < 200 || $status >= 300 || empty($decoded['success'])) {
@@ -137,7 +137,7 @@ class WPWA_API_Client
                 ? sanitize_text_field($decoded['message'])
                 : sprintf(
                     /* translators: %d: HTTP response status code. */
-                    __('WebPlatform request failed with HTTP %d.', 'webplatform-messaging'),
+                    __('WebPlatform request failed with HTTP %d.', 'webplatform-messaging-connector'),
                     $status
                 );
             return new WP_Error('wpwa_api_error', $message, array('status' => $status, 'response' => $decoded));

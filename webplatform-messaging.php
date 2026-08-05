@@ -7,7 +7,7 @@
  * Requires PHP: 7.4
  * Author: WebPlatform
  * License: GPL-2.0-or-later
- * Text Domain: webplatform-messaging
+ * Text Domain: webplatform-messaging-connector
  */
 
 if (!defined('ABSPATH')) {
