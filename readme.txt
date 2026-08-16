@@ -4,7 +4,7 @@ Tags: whatsapp, woocommerce, notifications
 Requires at least: 6.2
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.3.1
+Stable tag: 0.3.2
 License: GPLv2 or later
 
 Send WordPress and WooCommerce WhatsApp notifications through your WebPlatform merchant account.
@@ -34,6 +34,7 @@ The plugin includes:
 * Order notes for delivery submission success or failure.
 * WordPress user and WooCommerce order synchronization.
 * Direct access to the WebPlatform Messaging Campaigns dashboard.
+* Current WebPlatform logo and icon branding on the settings screen.
 
 == Installation ==
 
@@ -47,6 +48,11 @@ Automated WhatsApp messages normally require approved Meta templates. Customers 
 explicitly opt in; the plugin adds an unchecked checkout consent field.
 
 == Changelog ==
+
+= 0.3.2 =
+* Updated plugin author branding to WebPlatform.
+* Added the current WebPlatform logo and icon to the plugin package and settings screen.
+* Fixed standalone release documentation and added WordPress 7.1 validation guidance.
 
 = 0.3.1 =
 * Removed the license and entitlement interface; all included functionality is available without a plugin license check.
