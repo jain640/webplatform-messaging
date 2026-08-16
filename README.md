@@ -9,15 +9,17 @@ Installable connector for the WebPlatform merchant WhatsApp API.
 * [Compare WhatsApp and email marketing plans](https://webplatform.co.in/pricing)
 * [Open WebPlatform](https://webplatform.co.in/)
 
-## Build the ZIP
+## Install
 
-From the repository root:
+Create a release ZIP whose top-level directory is `webplatform-messaging`, containing the plugin PHP files, `includes/`, `readme.txt`, and `uninstall.php`. Do not include Git metadata or repository-only documentation in the WordPress release package.
 
-```sh
-./integrations/wordpress/build-webplatform-messaging.sh
-```
+Upload the ZIP in WordPress under Plugins > Add New > Upload Plugin and activate it. Then open Settings > WebPlatform WhatsApp, enter the WebPlatform URL and dedicated merchant API token, save the settings, and run the connection test.
 
-The ZIP is written to `artifacts/webplatform-messaging.zip`.
+The old README referenced `./integrations/wordpress/build-webplatform-messaging.sh`; that script is not part of this standalone repository and should not be used from this checkout.
+
+## WordPress 7.1 validation
+
+Before changing the WordPress.org `Tested up to` value to 7.1, complete the compatibility checklist in `docs/wordpress-7.1-validation.md` on WordPress 7.1 RC/final and run WordPress Plugin Check.
 
 ## External service
 
